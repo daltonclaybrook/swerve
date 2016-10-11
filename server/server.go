@@ -86,7 +86,7 @@ func (ws *WebServer) registerRouteHandlers(route control.Route) {
 	for idx, handler := range route.Handlers {
 		fmt.Printf("path: %v, method: %v\n", route.Path, handler.Method)
 
-		ws.registerHandler(route.Path, handler.Handler, handler.Method)
+		ws.registerHandler(route.Path, handler.HandlerFunc, handler.Method)
 		methods[idx] = strings.ToUpper(handler.Method)
 	}
 	ws.registerHandler(route.Path, sendOptionsHandlerFunc(methods), "options")
