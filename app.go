@@ -9,5 +9,6 @@ func main() {
 	server := server.NewWebServer()
 	server.RegisterMiddleware(middle.CORS{Origin: "*", Methods: "POST, GET, OPTIONS", Headers: "*"})
 	server.RegisterControl(&User{})
+	server.RegisterControl(&Asset{})
 	server.Start()
 }
