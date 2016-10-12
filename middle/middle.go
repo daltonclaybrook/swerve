@@ -18,8 +18,8 @@ type Handler interface {
 	Handle(w http.ResponseWriter, r *http.Request, context Context, next NextFunc)
 }
 
-// HandlerFuncByApplyingMiddleware is used to chain an array of Handlers in front of a terminating ContextFunc
-func HandlerFuncByApplyingMiddleware(handlers []Handler, final ContextFunc) http.HandlerFunc {
+// CreateHandlerFunc is used to chain an array of Handlers in front of a terminating ContextFunc
+func CreateHandlerFunc(handlers []Handler, final ContextFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		next := nextHandlerFunc(handlers, final, 0, w, r)
 		next(make(Context))

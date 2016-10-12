@@ -22,7 +22,12 @@ const (
 
 // Route is used to express a typical CRUD operation.
 type Route struct {
-	Op          int
+
+	// One of the operations defined above, e.g.
+	// Create, Find, FindOne, Update, and Delete
+	Op int
+
+	// The function which is called when the route is handled.
 	HandlerFunc middle.ContextFunc
 }
 

@@ -15,6 +15,6 @@ type CORS struct {
 func (c CORS) Handle(w http.ResponseWriter, r *http.Request, context Context, next NextFunc) {
 	w.Header().Set("Access-Control-Allow-Origin", c.Origin)
 	w.Header().Set("Access-Control-Allow-Methods", c.Methods)
-	w.Header().Set("Access-Control-Allow-Headers", "content-type, content-length")
+	w.Header().Set("Access-Control-Allow-Headers", c.Headers)
 	next(context)
 }

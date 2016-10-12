@@ -12,17 +12,17 @@ import (
 	"time"
 )
 
-// WebServer is used to create and start a server.
-type WebServer struct {
+// Server is used to create and start a server.
+type Server struct {
 	server     *http.Server
 	router     *mux.Router
 	middleware []middle.Handler
 	controls   []control.Control
 }
 
-// NewWebServer returns a new initialized instance of WebServer.
-func NewWebServer() *WebServer {
-	ws := &WebServer{}
+// NewServer returns a new initialized instance of WebServer.
+func NewServer() *Server {
+	ws := &Server{}
 	ws.controls = make([]control.Control, 0)
 	ws.middleware = make([]middle.Handler, 0)
 	ws.router = mux.NewRouter()
@@ -31,18 +31,18 @@ func NewWebServer() *WebServer {
 	return ws
 }
 
-// RegisterControl registers a request handler with the WebServer.
-func (ws *WebServer) RegisterControl(c control.Control) {
+// AddControl registers a request handler with the WebServer.
+func (ws *Server) AddControl(c control.Control) {
 	ws.controls = append(ws.controls, c)
 }
 
-// RegisterMiddleware registers request handlers called before the control.
-func (ws *WebServer) RegisterMiddleware(m middle.Handler) {
+// AddMiddleware registers request handlers called before the control.
+func (ws *Server) AddMiddleware(m middle.Handler) {
 	ws.middleware = append(ws.middleware, m)
 }
 
 // Start starts the server.
-func (ws *WebServer) Start() {
+func (ws *Server) Start() {
 	ws.setupServer()
 	ws.addRoutesForControls()
 	ws.server.ListenAndServe()
@@ -52,7 +52,7 @@ func (ws *WebServer) Start() {
 Private
 */
 
-func (ws *WebServer) setupServer() {
+func (ws *Server) setupServer() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -72,7 +72,7 @@ func (ws *WebServer) setupServer() {
 	// }
 }
 
-func (ws *WebServer) addRoutesForControls() {
+func (ws *Server) addRoutesForControls() {
 	for _, c := range ws.controls {
 		routes := c.Routes()
 		for _, route := range routes {
@@ -81,7 +81,7 @@ func (ws *WebServer) addRoutesForControls() {
 	}
 }
 
-func (ws *WebServer) registerRouteHandlers(route control.Route) {
+func (ws *Server) registerRouteHandlers(route control.Route) {
 	methods := make([]string, len(route.Handlers))
 	for idx, handler := range route.Handlers {
 		fmt.Printf("path: %v, method: %v\n", route.Path, handler.Method)
@@ -92,9 +92,9 @@ func (ws *WebServer) registerRouteHandlers(route control.Route) {
 	ws.registerHandler(route.Path, sendOptionsHandlerFunc(methods), "options")
 }
 
-func (ws *WebServer) registerHandler(path string, handlerFunc middle.ContextFunc, method string) {
-	toRegister := middle.HandlerFuncByApplyingMiddleware(ws.middleware, handlerFunc)
-	route := ws.router.HandleFunc(path, toRegister)
+func (ws *Server) registerHandler(path string, handlerFunc middle.ContextFunc, method string) {
+	toAdd := middle.CreateHandlerFunc(ws.middleware, handlerFunc)
+	route := ws.router.HandleFunc(path, toAdd)
 	if len(method) > 0 {
 		route.Methods(method)
 	}

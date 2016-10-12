@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	server := server.NewWebServer()
-	server.RegisterMiddleware(middle.CORS{Origin: "*", Methods: "POST, GET, OPTIONS", Headers: "*"})
-	server.RegisterControl(&User{})
-	server.RegisterControl(&Asset{})
+	server := server.NewServer()
+	server.AddMiddleware(middle.CORS{Origin: "*", Methods: "POST, GET, OPTIONS", Headers: "*"})
+	server.AddControl(&User{})
+	server.AddControl(&Asset{})
 	server.Start()
 }
