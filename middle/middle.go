@@ -4,6 +4,11 @@ import (
 	"net/http"
 )
 
+// Handler is an interface which middleware must conform to
+type Handler interface {
+	Handle(w http.ResponseWriter, r *http.Request, context Context, next NextFunc)
+}
+
 // Context is a map used to carry state from middleware to a control
 type Context map[string]interface{}
 
@@ -12,11 +17,6 @@ type ContextFunc func(http.ResponseWriter, *http.Request, Context)
 
 // NextFunc is a function passed to middleware to call when the middleware operation is finished
 type NextFunc func(Context)
-
-// Handler is an interface which middleware must conform to
-type Handler interface {
-	Handle(w http.ResponseWriter, r *http.Request, context Context, next NextFunc)
-}
 
 // CreateHandlerFunc is used to chain an array of Handlers in front of a terminating ContextFunc
 func CreateHandlerFunc(handlers []Handler, final ContextFunc) http.HandlerFunc {

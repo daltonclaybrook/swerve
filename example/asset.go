@@ -12,15 +12,15 @@ type Asset struct{}
 
 func (a *Asset) Routes() []control.Route {
 	return crud.CreateRoutes("asset", []crud.Route{
-		crud.Route{Op: crud.Find, HandlerFunc: a.Find},
+		crud.Route{Op: crud.Find, HandlerFunc: a.Find, Middleware: []middle.Handler{IsAuthenticated{}, IsOwnerOfAsset{}}},
 		crud.Route{Op: crud.Create, HandlerFunc: a.Create},
 	})
 }
 
 func (a *Asset) Find(w http.ResponseWriter, r *http.Request, c middle.Context) {
-	fmt.Println("find")
+	fmt.Fprintln(w, "find")
 }
 
 func (a *Asset) Create(w http.ResponseWriter, r *http.Request, c middle.Context) {
-	fmt.Println("create")
+	fmt.Fprintln(w, "create")
 }

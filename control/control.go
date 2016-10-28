@@ -22,6 +22,9 @@ type Handler struct {
 
 	// The function which is called when a route is handled.
 	HandlerFunc middle.ContextFunc
+
+	// Ordered list of middleware handlers to execute before the route is handled
+	Middleware []middle.Handler
 }
 
 // Control handles routes.

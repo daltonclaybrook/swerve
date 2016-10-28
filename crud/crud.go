@@ -29,6 +29,9 @@ type Route struct {
 
 	// The function which is called when the route is handled.
 	HandlerFunc middle.ContextFunc
+
+	// An ordered list of middleware handlers
+	Middleware []middle.Handler
 }
 
 // Handler defines a type which handles all CRUD methods.
@@ -40,14 +43,14 @@ type Handler interface {
 	Delete(w http.ResponseWriter, r *http.Request, c middle.Context)
 }
 
-// AllRoutes is a convenience method for subscribing to all routes.
+// CreateAllRoutes is a convenience method for subscribing to all routes.
 func CreateAllRoutes(model string, handler Handler) []control.Route {
 	crud := []Route{
-		Route{Create, handler.Create},
-		Route{Find, handler.Find},
-		Route{FindOne, handler.FindOne},
-		Route{Update, handler.Update},
-		Route{Delete, handler.Delete},
+		Route{Op: Create, HandlerFunc: handler.Create},
+		Route{Op: Find, HandlerFunc: handler.Find},
+		Route{Op: FindOne, HandlerFunc: handler.FindOne},
+		Route{Op: Update, HandlerFunc: handler.Update},
+		Route{Op: Delete, HandlerFunc: handler.Delete},
 	}
 	return CreateRoutes(model, crud)
 }
@@ -70,19 +73,19 @@ func CreateRoutes(model string, crud []Route) []control.Route {
 		switch r.Op {
 		case Create:
 			route := getRoute(fmt.Sprintf("/%v", model))
-			route.Handlers = append(route.Handlers, control.Handler{Method: "post", HandlerFunc: r.HandlerFunc})
+			route.Handlers = append(route.Handlers, control.Handler{Method: "post", HandlerFunc: r.HandlerFunc, Middleware: r.Middleware})
 		case Find:
 			route := getRoute(fmt.Sprintf("/%v", model))
-			route.Handlers = append(route.Handlers, control.Handler{Method: "get", HandlerFunc: r.HandlerFunc})
+			route.Handlers = append(route.Handlers, control.Handler{Method: "get", HandlerFunc: r.HandlerFunc, Middleware: r.Middleware})
 		case FindOne:
 			route := getRoute(fmt.Sprintf("/%v/{id:[0-9]+}", model))
-			route.Handlers = append(route.Handlers, control.Handler{Method: "get", HandlerFunc: r.HandlerFunc})
+			route.Handlers = append(route.Handlers, control.Handler{Method: "get", HandlerFunc: r.HandlerFunc, Middleware: r.Middleware})
 		case Update:
 			route := getRoute(fmt.Sprintf("/%v/{id:[0-9]+}", model))
-			route.Handlers = append(route.Handlers, control.Handler{Method: "patch", HandlerFunc: r.HandlerFunc})
+			route.Handlers = append(route.Handlers, control.Handler{Method: "patch", HandlerFunc: r.HandlerFunc, Middleware: r.Middleware})
 		case Delete:
 			route := getRoute(fmt.Sprintf("/%v/{id:[0-9]+}", model))
-			route.Handlers = append(route.Handlers, control.Handler{Method: "delete", HandlerFunc: r.HandlerFunc})
+			route.Handlers = append(route.Handlers, control.Handler{Method: "delete", HandlerFunc: r.HandlerFunc, Middleware: r.Middleware})
 		}
 	}
 
