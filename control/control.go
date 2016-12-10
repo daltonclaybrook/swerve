@@ -34,3 +34,12 @@ type Control interface {
 	// should be used for this Control
 	Routes() []Route
 }
+
+// NewRoute creates a single endpoint from a path, method, and handler func
+func NewRoute(method string, path string, handlerFunc middle.ContextFunc) Route {
+	handler := Handler{
+		Method:      method,
+		HandlerFunc: handlerFunc,
+	}
+	return Route{Path: path, Handlers: []Handler{handler}}
+}

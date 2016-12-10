@@ -20,8 +20,8 @@ type Server struct {
 	controls   []control.Control
 }
 
-// NewServer returns a new initialized instance of WebServer.
-func NewServer() *Server {
+// New returns a new initialized instance of WebServer.
+func New() *Server {
 	ws := &Server{}
 	ws.controls = make([]control.Control, 0)
 	ws.middleware = make([]middle.Handler, 0)
@@ -36,8 +36,8 @@ func (ws *Server) AddControl(c control.Control) {
 	ws.controls = append(ws.controls, c)
 }
 
-// AddMiddleware registers request handlers called before the control.
-func (ws *Server) AddMiddleware(m middle.Handler) {
+// AddGlobalMiddleware registers request handlers called before the control.
+func (ws *Server) AddGlobalMiddleware(m middle.Handler) {
 	ws.middleware = append(ws.middleware, m)
 }
 
@@ -45,6 +45,7 @@ func (ws *Server) AddMiddleware(m middle.Handler) {
 func (ws *Server) Start() {
 	ws.setupServer()
 	ws.addRoutesForControls()
+	fmt.Printf("Listening on %v...\n", ws.server.Addr)
 	ws.server.ListenAndServe()
 }
 
