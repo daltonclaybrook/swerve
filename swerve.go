@@ -14,10 +14,11 @@ import (
 
 // Server is used to create and start a server.
 type Server struct {
-	server     *http.Server
-	router     *mux.Router
-	middleware []middle.Handler
-	controls   []control.Control
+	server      *http.Server
+	router      *mux.Router
+	middleware  []middle.Handler
+	controls    []control.Control
+	staticFiles map[string]string
 }
 
 // New returns a new initialized instance of WebServer.
@@ -25,6 +26,7 @@ func New() *Server {
 	ws := &Server{}
 	ws.controls = make([]control.Control, 0)
 	ws.middleware = make([]middle.Handler, 0)
+	ws.staticFiles = make(map[string]string)
 	ws.router = mux.NewRouter()
 
 	http.Handle("/", ws.router)
@@ -41,10 +43,16 @@ func (ws *Server) AddGlobalMiddleware(m middle.Handler) {
 	ws.middleware = append(ws.middleware, m)
 }
 
+// AddStaticDirectory registers a handler for static files
+func (ws *Server) AddStaticDirectory(endpoint string, path string) {
+	ws.staticFiles[endpoint] = path
+}
+
 // Start starts the server.
 func (ws *Server) Start() {
 	ws.setupServer()
 	ws.addRoutesForControls()
+	ws.addRoutesForStaticFiles()
 	fmt.Printf("Listening on %v...\n", ws.server.Addr)
 	ws.server.ListenAndServe()
 }
@@ -79,6 +87,12 @@ func (ws *Server) addRoutesForControls() {
 		for _, route := range routes {
 			ws.registerRouteHandlers(route)
 		}
+	}
+}
+
+func (ws *Server) addRoutesForStaticFiles() {
+	for endpoint, path := range ws.staticFiles {
+		ws.router.PathPrefix(endpoint).Handler(http.StripPrefix(endpoint, http.FileServer(http.Dir(path))))
 	}
 }
 
